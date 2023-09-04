@@ -38,7 +38,7 @@ void loop()
       {
        turnLeft();
        Serial.println("back");
-           if(calcDistance()>12)
+           if(calcDistance()>8)
       	{
         	break;
       	}
@@ -53,7 +53,7 @@ void loop()
       {
         turnRight();
         Serial.println("turn right");
-        if(calcDistance()>12)
+        if(calcDistance()>8)
       	{
           key=1;
         	break;
@@ -67,7 +67,7 @@ void loop()
       {
        turnLeft();
        Serial.println("turn left");
-        if(calcDistance()>10)
+        if(calcDistance()>8)
         	{
          	break;
         	}
