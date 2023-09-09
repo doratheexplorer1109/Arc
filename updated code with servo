@@ -1,0 +1,156 @@
+// C++ code
+//
+
+#include<Servo.h>
+
+# define echo 5
+# define trig 6
+# define gndl 12
+#define gndr 7
+#define outl 13
+#define outr 8
+#define enl 11
+#define enr 10
+
+int servopin=3;
+int servopos=90;
+Servo myservo;
+
+char path[100];
+int top=-1;
+int key=0;
+int ldist=0;
+int rdist=0;
+
+void setup()
+{
+  Serial.begin(9600);
+  myservo.attach(servopin);
+  
+  pinMode(trig,OUTPUT);
+  pinMode(echo,INPUT);
+  pinMode(gndl,OUTPUT);
+  pinMode(gndr,OUTPUT);
+  pinMode(outl,OUTPUT);
+  pinMode(outr,OUTPUT);
+  pinMode(enl,OUTPUT);
+  pinMode(enr,OUTPUT);
+}
+
+void loop()
+{
+  myservo.write(servopos);
+ int dist=calcDistance();
+  Serial.println(dist);
+ 
+  
+  if(dist<20){
+    myservo.write(180);
+    ldist=calcDistance();
+    delay(3000);
+    Serial.println(ldist);
+    
+    myservo.write(0);
+    rdist=calcDistance();
+    delay(3000);
+    Serial.println(rdist);
+   
+    
+    if(ldist>25){
+      turnLeft();
+      delay(250);
+      stop();
+      if(key==0){
+        top++;
+        path[top]='l';
+        Serial.println('l');
+      }
+      if(key==1){
+        if(path[top]=='l'){
+          key=0;
+        }
+        else{
+         top--; 
+        }
+      }  
+    }
+    
+    else if(rdist>25){
+      turnRight();
+      delay(250);
+      stop();
+      if(key==0){
+        top++;
+        path[top]='r';
+        Serial.println('r');
+      }
+      if(key==1){
+        if(path[top]=='r'){
+          key=0;
+        }
+        else{
+          top--;
+        }
+      }  
+     }
+    
+    else{
+     turnLeft();
+      delay(500);
+      stop();
+      key=1;  
+    }
+  }
+  
+  else{
+    move();
+  } 
+}
+
+void move()
+{
+  analogWrite(enl,150);
+  analogWrite(enr,150);
+  digitalWrite(outl,HIGH);
+  digitalWrite(outr,LOW);
+  digitalWrite(gndl,LOW);
+  digitalWrite(gndr,HIGH);
+
+}
+void turnRight()
+{
+  analogWrite(enl,250);
+  analogWrite(enr,250);
+  digitalWrite(outl,HIGH);
+  digitalWrite(outr,LOW);
+  digitalWrite(gndl,LOW);
+  digitalWrite(gndr,HIGH);
+  
+}
+void turnLeft()
+{
+  analogWrite(enl,250);
+  analogWrite(enr,250);
+  digitalWrite(outl,LOW);
+  digitalWrite(outr,HIGH);
+  digitalWrite(gndl,HIGH);
+  digitalWrite(gndr,LOW);
+  
+}
+int calcDistance()
+{
+  int dist=0;
+  digitalWrite(trig,LOW);
+  delay(4);
+  digitalWrite(trig,HIGH);
+  delay(15);
+  digitalWrite(trig,LOW);
+  int t=pulseIn(echo,HIGH);
+  dist=t*(0.034/2);
+  return dist;
+}
+void stop()
+{
+  analogWrite(enl,0);
+  analogWrite(enr,0);
+}
