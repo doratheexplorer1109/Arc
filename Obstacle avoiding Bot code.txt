@@ -1,0 +1,139 @@
+#include <Servo.h>
+
+#define leftmtrfwd 3
+#define rightmtrfwd 4
+#define leftmtrbwd 2
+#define rightmtrbwd 5
+#define trig A2
+#define echo A1
+#define enl 10
+#define enr 11
+Servo servo_motor;
+
+void setup()
+{
+    Serial.begin(9600);
+    servo_motor.attach(6);
+    pinMode(trig,OUTPUT);
+    pinMode(echo,INPUT);
+    pinMode(rightmtrfwd,OUTPUT);
+    pinMode(leftmtrfwd,OUTPUT);
+    pinMode(rightmtrbwd,OUTPUT);
+    pinMode(leftmtrbwd,OUTPUT);
+  pinMode(enl,OUTPUT);
+  pinMode(enr , OUTPUT);
+    servo_motor.write(90);
+    delay(1000);
+  	movefwd();
+    Serial.println("moving fwd");
+}
+
+void loop()
+{
+    int distance = calcDistance();
+    Serial.println("Distance:");
+    Serial.println(distance);
+    int distrgt = 0;
+    int distlft = 0;
+    int key =0;
+    if (distance < 20)
+    {   
+        movestop();
+        servo_motor.write(135);
+        delay(1000);
+        distrgt = calcDistance();
+        Serial.println(" Right Distance:");
+        Serial.println(distrgt);
+        
+        if (distrgt > distance)
+        {
+            turnright();
+            delay(750);
+            Serial.println("Turning Right");
+            delay(500);
+            servo_motor.write(90);
+            delay(700);
+            key=1;
+        }
+        
+            if(key!=1)
+            {
+            servo_motor.write(45);
+            delay(1000);
+            distlft = calcDistance();
+            Serial.println("Left Distance:");
+            Serial.println(distlft);
+
+            if(distlft > distance)
+            {
+                turnleft();
+                delay(750);
+                Serial.println(" Turning left");
+                delay(500);
+                servo_motor.write(90);
+                delay(1000);
+            }
+            else{
+                turnleft();
+                delay(1500);
+            }
+            }
+    }
+    else
+    {
+    movefwd();
+    }
+}
+
+int calcDistance()
+{
+  int dist=0;
+  digitalWrite(trig,LOW);
+  delay(4);
+  digitalWrite(trig,HIGH);
+  delay(15);
+  digitalWrite(trig,LOW);
+  int t=pulseIn(echo,HIGH);
+  dist=t*(0.034/2);
+  return dist;
+}
+
+void turnright()
+{
+    analogWrite(enl , 20);
+    analogWrite(enr , 20);
+    digitalWrite(leftmtrfwd, HIGH);
+    digitalWrite(rightmtrbwd, HIGH);
+    digitalWrite(leftmtrbwd, LOW);
+    digitalWrite(rightmtrfwd, LOW);
+}
+
+void turnleft()
+{
+    analogWrite(enl , 20);
+    analogWrite(enr , 20);
+    digitalWrite(leftmtrfwd, LOW);
+    digitalWrite(rightmtrbwd, LOW);
+    digitalWrite(leftmtrbwd, HIGH);
+    digitalWrite(rightmtrfwd, HIGH);
+}
+
+void movefwd()
+{
+    analogWrite(enl , 50);
+    analogWrite(enr , 50);
+    digitalWrite(leftmtrfwd, HIGH);
+    digitalWrite(rightmtrbwd, LOW);
+    digitalWrite(leftmtrbwd, LOW);
+    digitalWrite(rightmtrfwd, HIGH);   
+}
+
+void movestop()
+{
+    analogWrite(enl , 0);
+    analogWrite(enr , 0);
+    digitalWrite(leftmtrfwd, LOW);
+    digitalWrite(rightmtrbwd, LOW);
+    digitalWrite(leftmtrbwd, LOW);
+    digitalWrite(rightmtrfwd, LOW); 
+}
